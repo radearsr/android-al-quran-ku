@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Al Quran Ku</string>
+    <string name="value_home">Home</string>
+    <string name="value_favorite">Favorite</string>
+    <string name="value_jadwal_sholat">Jadwal Sholat</string>
+    <string name="value_salam">Assalamualaikum</string>
+    <string name="value_daftar_surah">Daftar Surah</string>
+    <string name="title_activity_detail_ayat">DetailAyatActivity</string>
+    <string name="home">Home</string>
+    <string name="value_keterangan">Keterangan</string>
+    <string name="value_number_one">1</string>
+    <string name="play_sound">Play Sound</string>
+    <string name="current_username">Radea Surya</string>
+    <string name="current_location">Gunung Pati, Semarang</string>
+    <string name="jumlah_ayat">%s - %d Ayat</string>
+    <string name="loading_msg">Sedang Memuat...</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="value_jadwal">Jadwal</string>
+    <string name="value_cari_kota">Cari Kota</string>
+</resources>
