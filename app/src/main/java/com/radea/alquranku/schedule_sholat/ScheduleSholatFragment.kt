@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.radea.alquranku.R
 import com.radea.alquranku.core.data.Resource
 import com.radea.alquranku.core.data.ui.DateScheduleAdapter
-import com.radea.alquranku.core.domain.model.City
+import com.radea.alquranku.core.data.ui.ScheduleSholatAdapter
 import com.radea.alquranku.databinding.FragmentScheduleSholatBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.SimpleDateFormat
@@ -22,6 +22,7 @@ class ScheduleSholatFragment : Fragment() {
     private val scheduleSholatViewModel: ScheduleSholatViewModel by viewModel()
     private lateinit var binding: FragmentScheduleSholatBinding
     private lateinit var dateScheduleAdapter: DateScheduleAdapter
+    private lateinit var scheduleSholatAdapter: ScheduleSholatAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -38,12 +39,15 @@ class ScheduleSholatFragment : Fragment() {
         val calendar = Calendar.getInstance()
 
         dateScheduleAdapter = DateScheduleAdapter()
+        scheduleSholatAdapter = ScheduleSholatAdapter()
         with(binding) {
             autoCompleteTv.setAdapter(dropdownArrayAdapter)
             autoCompleteTv.threshold = 1
             rvDateSchedule.layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             rvDateSchedule.adapter = dateScheduleAdapter
+            rvTimeSholat.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+            rvTimeSholat.adapter = scheduleSholatAdapter
             tvMonthYear.text =
                 SimpleDateFormat("MMMM yyyy", Locale("id", "ID")).format(calendar.time)
         }
@@ -53,7 +57,9 @@ class ScheduleSholatFragment : Fragment() {
             val selectedItem = parent.getItemAtPosition(position).toString()
             Log.i(TAG, "SELECTED DROPDOWN $selectedItem")
             scheduleSholatViewModel.setSelectedCity(selectedItem)
-            scheduleSholatViewModel.currentScheduleSholat()
+            val cityId = scheduleSholatViewModel.getSelectedCity()
+            val fullDate = scheduleSholatViewModel.getSelectedFullDate()
+            initRetrieveScheduleSholat(cityId, fullDate)
         }
 
         scheduleSholatViewModel.cities.observe(viewLifecycleOwner) { cities ->
@@ -68,8 +74,12 @@ class ScheduleSholatFragment : Fragment() {
                     cities.data?.let { scheduleSholatViewModel.setListsCity(it) }
                     dropdownArrayAdapter.addAll(cityNames)
                     dropdownArrayAdapter.notifyDataSetChanged()
-                    scheduleSholatViewModel.setSelectedCity("KOTA SEMARANG")
-                    scheduleSholatViewModel.currentScheduleSholat()
+                    val defaultCity = resources.getString(R.string.value_default_city)
+                    scheduleSholatViewModel.setSelectedCity(defaultCity)
+                    binding.autoCompleteTv.setText(defaultCity)
+                    val cityId = scheduleSholatViewModel.getSelectedCity()
+                    val fullDate = scheduleSholatViewModel.getSelectedFullDate()
+                    initRetrieveScheduleSholat(cityId, fullDate)
                 }
 
                 is Resource.Error -> {
@@ -78,17 +88,43 @@ class ScheduleSholatFragment : Fragment() {
             }
         }
 
+        scheduleSholatViewModel.isLoadingSchedule.observe(viewLifecycleOwner) { isLoading ->
+            Log.i(TAG, "LOADING $isLoading")
+            binding.loadingEl.loadingLayout.visibility = View.VISIBLE
+        }
+
+        scheduleSholatViewModel.listSchedule.observe(viewLifecycleOwner) { schedules ->
+            binding.loadingEl.loadingLayout.visibility = View.GONE
+            Log.i(TAG, "DATA $schedules")
+            scheduleSholatAdapter.setData(schedules)
+        }
+
+        scheduleSholatViewModel.errorMessageSchedule.observe(viewLifecycleOwner) { errorMessage ->
+            Log.i(TAG, "MESSAGE $errorMessage")
+            binding.loadingEl.loadingLayout.visibility = View.GONE
+        }
+
+
+
         scheduleSholatViewModel.datesFromWeek.observe(viewLifecycleOwner) { dates ->
             dateScheduleAdapter.setData(dates)
             val selectedDate = dates.firstOrNull { it.isSelected }
-            selectedDate?.let { scheduleSholatViewModel.setSelectedFullDate(it.fullDate)  }
-            scheduleSholatViewModel.currentScheduleSholat()
+            selectedDate?.let { scheduleSholatViewModel.setSelectedFullDate(it.fullDate) }
+            val cityId = scheduleSholatViewModel.getSelectedCity()
+            val fullDate = scheduleSholatViewModel.getSelectedFullDate()
+            initRetrieveScheduleSholat(cityId, fullDate)
         }
 
         dateScheduleAdapter.onItemClick = { date ->
             scheduleSholatViewModel.updateSelectedDate(date)
         }
+    }
 
+    private fun initRetrieveScheduleSholat(cityId: Int?, fullDate: String?) {
+        Log.i(TAG, "VARIABLE INIT $cityId || $fullDate")
+        if (cityId != null && fullDate != null) {
+            scheduleSholatViewModel.getScheduleByDate(cityId, fullDate)
+        }
     }
 
 

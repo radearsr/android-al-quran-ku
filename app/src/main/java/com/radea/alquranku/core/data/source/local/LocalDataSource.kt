@@ -2,6 +2,7 @@ package com.radea.alquranku.core.data.source.local
 
 import com.radea.alquranku.core.data.source.local.entity.AyatEntity
 import com.radea.alquranku.core.data.source.local.entity.CityEntity
+import com.radea.alquranku.core.data.source.local.entity.ScheduleEntity
 import com.radea.alquranku.core.data.source.local.entity.SurahEntity
 import com.radea.alquranku.core.data.source.local.room.AlquranDao
 import kotlinx.coroutines.flow.Flow
@@ -18,4 +19,10 @@ class LocalDataSource(private val alquranDao: AlquranDao) {
     fun getAllCity() = alquranDao.getAllCity()
 
     suspend fun insertCity(cityList: List<CityEntity>) = alquranDao.insertCity(cityList)
+
+    fun getScheduleByDate(cityId: Int, fullDate: String) =
+        alquranDao.getScheduleByDate(cityId, fullDate)
+
+    suspend fun insertSchedule(scheduleList: List<ScheduleEntity>) =
+        alquranDao.insertSchedule(scheduleList)
 }

@@ -5,6 +5,7 @@ import com.radea.alquranku.core.data.source.remote.network.ApiResponse
 import com.radea.alquranku.core.data.source.remote.network.ScheduleSholatApiService
 import com.radea.alquranku.core.data.source.remote.network.SurahApiService
 import com.radea.alquranku.core.data.source.remote.response.schedule_sholat.ListCityResponse
+import com.radea.alquranku.core.data.source.remote.response.schedule_sholat.ScheduleResponse
 import com.radea.alquranku.core.data.source.remote.response.surah.SurahDetailResponse
 import com.radea.alquranku.core.data.source.remote.response.surah.SurahItemResponse
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +50,20 @@ class RemoteDataSource(
             try {
                 val response = scheduleSholatApiService.getAllCity()
                 if (response.data.isNotEmpty()) {
+                    emit(ApiResponse.Success(response))
+                }
+            } catch (e: Exception) {
+                emit(ApiResponse.Error(e.message.toString()))
+                Log.e("RemoteDataSource", e.toString())
+            }
+        }.flowOn(Dispatchers.IO)
+    }
+
+    fun getScheduleByDate(cityId: Int, fullDate: String): Flow<ApiResponse<ScheduleResponse>> {
+        return flow {
+            try {
+                val response = scheduleSholatApiService.getScheduleByDay(cityId, fullDate)
+                if (response.status) {
                     emit(ApiResponse.Success(response))
                 }
             } catch (e: Exception) {

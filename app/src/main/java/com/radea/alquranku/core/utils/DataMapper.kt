@@ -2,12 +2,17 @@ package com.radea.alquranku.core.utils
 
 import com.radea.alquranku.core.data.source.local.entity.AyatEntity
 import com.radea.alquranku.core.data.source.local.entity.CityEntity
+import com.radea.alquranku.core.data.source.local.entity.ScheduleEntity
 import com.radea.alquranku.core.data.source.local.entity.SurahEntity
 import com.radea.alquranku.core.data.source.remote.response.schedule_sholat.CityDataItem
+import com.radea.alquranku.core.data.source.remote.response.schedule_sholat.DetailScheduleResponse
+import com.radea.alquranku.core.data.source.remote.response.schedule_sholat.ScheduleDataItem
+import com.radea.alquranku.core.data.source.remote.response.schedule_sholat.ScheduleResponse
 import com.radea.alquranku.core.data.source.remote.response.surah.AyatItemResponse
 import com.radea.alquranku.core.data.source.remote.response.surah.SurahItemResponse
 import com.radea.alquranku.core.domain.model.Ayat
 import com.radea.alquranku.core.domain.model.City
+import com.radea.alquranku.core.domain.model.ScheduleSholat
 import com.radea.alquranku.core.domain.model.Surah
 
 object DataMapper {
@@ -85,6 +90,33 @@ object DataMapper {
         City(
             id = it.id,
             name = it.name
+        )
+    }
+
+    fun mapScheduleResponseToEntity(inputDetailObj: DetailScheduleResponse): List<ScheduleEntity> {
+        val scheduleLists = ArrayList<ScheduleEntity>()
+        val arrayKey = ScheduleDataItem::class.java.declaredFields.map { it.name }
+        val filteredArrayKey = arrayKey.filterNot { it.equals("tanggal") || it.equals("date") }
+        filteredArrayKey.map { key ->
+            val field = ScheduleDataItem::class.java.getDeclaredField(key)
+            field.isAccessible = true
+            val value = field.get(inputDetailObj.jadwal)
+            field.isAccessible = false
+            val schedule = ScheduleEntity(
+                cityId = inputDetailObj.id,
+                fullDate = inputDetailObj.jadwal.date,
+                key = key,
+                value = value?.toString() ?: "failed"
+            )
+            scheduleLists.add(schedule)
+        }
+        return scheduleLists
+    }
+
+    fun mapScheduleEntityToDomain(input: List<ScheduleEntity>): List<ScheduleSholat> = input.map {
+        ScheduleSholat(
+            key = it.key,
+            value = it.value
         )
     }
 }

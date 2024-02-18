@@ -14,8 +14,8 @@
     <string name="current_location">Gunung Pati, Semarang</string>
     <string name="jumlah_ayat">%s - %d Ayat</string>
     <string name="loading_msg">Sedang Memuat...</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="value_jadwal">Jadwal</string>
     <string name="value_cari_kota">Cari Kota</string>
+    <string name="value_default_city">KOTA SEMARANG</string>
 </resources>
